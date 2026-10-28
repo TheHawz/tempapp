@@ -24,6 +24,9 @@ export function createSoundController() {
     if (!enabled) return;
     const c = ensureContext();
     if (!c) return;
+    // iOS puede suspender el AudioContext a media sesión (no solo al cargar);
+    // reintentar el resume aquí, no solo en unlock(), evita pitidos mudos.
+    if (c.state === 'suspended') c.resume().catch(() => {});
     try {
       const osc = c.createOscillator();
       const gain = c.createGain();

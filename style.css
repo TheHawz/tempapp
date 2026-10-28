@@ -150,8 +150,8 @@ section.screen-running {
 
 .sound-toggle-btn {
   position: absolute;
-  top: 8px;
-  right: 12px;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  right: calc(env(safe-area-inset-right, 0px) + 12px);
   width: 36px;
   height: 36px;
   border: none;
@@ -204,7 +204,10 @@ section.screen-running {
   stroke: var(--phase);
   stroke-width: 6;
   stroke-linecap: round;
-  transition: stroke-dashoffset 1s linear, stroke .35s ease;
+  /* sin transición en stroke-dashoffset: el valor ya se recalcula en cada
+     frame desde JS (~60/s), una transición CSS aquí compite consigo misma
+     y el anillo nunca llega a alcanzar el valor real */
+  transition: stroke .35s ease;
 }
 
 .countdown {
