@@ -32,12 +32,17 @@ export function createSoundController() {
       const gain = c.createGain();
       osc.type = type || 'sine';
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.15, c.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + durationMs / 1000);
+      const now = c.currentTime;
+      // Rampa de ataque corta: sin ella el gain salta de golpe a 0.15 y
+      // se oye como un click/pop al empezar cada tono.
+      const attack = Math.min(0.012, durationMs / 1000 / 4);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.15, now + attack);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + durationMs / 1000);
       osc.connect(gain);
       gain.connect(c.destination);
-      osc.start();
-      osc.stop(c.currentTime + durationMs / 1000);
+      osc.start(now);
+      osc.stop(now + durationMs / 1000);
     } catch (e) { /* no-op: audio no disponible */ }
   }
 
