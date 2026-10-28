@@ -86,6 +86,7 @@
 
     <section x-show="screen === 'running'" x-transition class="screen-running">
       <div class="stage" :data-phase="phaseType">
+        <button type="button" class="sound-toggle-btn" @click="toggleSound()" x-text="soundOn ? '🔊' : '🔇'" aria-label="Silenciar sonido"></button>
         <div class="eyebrow" x-text="phaseLabel"></div>
 
         <div class="ring-wrap">
