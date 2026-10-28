@@ -3,17 +3,7 @@
 
 import { flatten } from './flatten.js';
 import { TimerEngine } from './engine.js';
-
-const EXAMPLE_WORKOUT = {
-  repeat: 1,
-  children: [
-    { repeat: 2, children: [
-      { type: "work", duration: 25 },
-      { type: "rest", duration: 20 }
-    ]},
-    { type: "rest", duration: 20, prep: 10 }
-  ]
-};
+import { buildSeriesWorkout, buildRepeaterWorkout } from './workoutBuilder.js';
 
 document.addEventListener('alpine:init', () => {
   Alpine.data('timer', () => ({
@@ -24,6 +14,23 @@ document.addEventListener('alpine:init', () => {
     wakeLock: null,
     rafId: null,
 
+    workoutType: 'series',
+    formError: '',
+
+    seriesInitialPrep: 5,
+    seriesWork: 30,
+    seriesRest: 15,
+    seriesRestPrep: 5,
+    seriesRounds: 3,
+
+    repeaterInitialPrep: 5,
+    repeaterWork: 10,
+    repeaterRest: 20,
+    repeaterCycleRounds: 5,
+    repeaterBetweenRest: 30,
+    repeaterBetweenRestPrep: 10,
+    repeaterSets: 2,
+
     init() {
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && this.engine) this.update();
@@ -31,8 +38,37 @@ document.addEventListener('alpine:init', () => {
     },
 
     start() {
+      this.formError = '';
+      let result;
+      try {
+        if (this.workoutType === 'series') {
+          result = buildSeriesWorkout({
+            initialPrep: this.seriesInitialPrep,
+            work: this.seriesWork,
+            rest: this.seriesRest,
+            restPrep: this.seriesRestPrep,
+            rounds: this.seriesRounds
+          });
+        } else {
+          result = buildRepeaterWorkout({
+            initialPrep: this.repeaterInitialPrep,
+            work: this.repeaterWork,
+            rest: this.repeaterRest,
+            cycleRounds: this.repeaterCycleRounds,
+            betweenRest: this.repeaterBetweenRest,
+            betweenRestPrep: this.repeaterBetweenRestPrep,
+            sets: this.repeaterSets
+          });
+        }
+      } catch (e) {
+        this.formError = e.message;
+        return;
+      }
+      const phases = flatten(result.group);
+      if (result.initialPrepSeconds > 0) {
+        phases.unshift({ type: 'prep', duration: result.initialPrepSeconds });
+      }
       cancelAnimationFrame(this.rafId);
-      const phases = flatten(EXAMPLE_WORKOUT);
       this.engine = new TimerEngine(phases);
       this.engine.start();
       this.screen = 'running';

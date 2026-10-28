@@ -58,3 +58,49 @@ button {
 button:active {
   background-color: #0ea5e9;
 }
+
+.type-selector {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.type-selector button {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+.type-selector button.active {
+  background-color: #38bdf8;
+  color: #0f172a;
+}
+
+.config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.config-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 1rem;
+  text-align: left;
+}
+
+.config-form input[type="number"] {
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.1rem;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+.form-error {
+  color: #f87171;
+  font-size: 1rem;
+}
