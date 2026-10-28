@@ -1,9 +1,11 @@
 // app.js — entry point de la app. Conecta flatten() + TimerEngine con la UI.
 // No exporta nada: registra el componente Alpine 'timer' al cargar.
 
-import { flatten } from './flatten.js';
+import { flattenWithPath } from './flattenPath.js';
 import { TimerEngine } from './engine.js';
 import { buildSeriesWorkout, buildRepeaterWorkout } from './workoutBuilder.js';
+
+const RING_CIRC = 2 * Math.PI * 54;
 
 document.addEventListener('alpine:init', () => {
   Alpine.data('timer', () => ({
@@ -13,6 +15,16 @@ document.addEventListener('alpine:init', () => {
     engine: null,
     wakeLock: null,
     rafId: null,
+
+    phases: [],
+    phaseType: '',
+    ringOffset: 0,
+    positionBlockText: '',
+    positionSectorText: '',
+    hasNext: false,
+    nextType: '',
+    nextLabel: '',
+    nextDurationLabel: '',
 
     workoutType: 'series',
     formError: '',
@@ -64,13 +76,15 @@ document.addEventListener('alpine:init', () => {
         this.formError = e.message;
         return;
       }
-      const phases = flatten(result.group);
+      const phases = flattenWithPath(result.group);
       if (result.initialPrepSeconds > 0) {
         phases.unshift({ type: 'prep', duration: result.initialPrepSeconds });
       }
+      this.phases = phases;
       cancelAnimationFrame(this.rafId);
       this.engine = new TimerEngine(phases);
       this.engine.start();
+      this.buildSegmentStrip();
       this.screen = 'running';
       this.requestWakeLock();
       this.loop();
@@ -112,14 +126,74 @@ document.addEventListener('alpine:init', () => {
         this.screen = 'done';
         cancelAnimationFrame(this.rafId);
         this.releaseWakeLock();
+        this.renderSegmentStrip(this.phases.length);
         return;
       }
-      const labels = { work: 'TRABAJO', rest: 'DESCANSO', prep: 'PREPÁRATE' };
+      const labels = { work: 'Trabajo', rest: 'Descanso', prep: 'Prepárate' };
       this.phaseLabel = labels[state.phase.type];
       const totalSeconds = Math.ceil(state.remainingMs / 1000);
       const mm = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
       const ss = String(totalSeconds % 60).padStart(2, '0');
       this.remainingLabel = `${mm}:${ss}`;
+
+      this.phaseType = state.phase.type;
+
+      const progress = 1 - (state.remainingMs / (state.phase.duration * 1000));
+      this.ringOffset = RING_CIRC * (1 - progress);
+
+      const path = state.phase.path || [];
+      this.positionBlockText = path.length > 0 ? `Bloque ${path[0].index} de ${path[0].total}` : '';
+      this.positionSectorText = path.length > 1 ? `Sector ${path[1].index} de ${path[1].total}` : '';
+
+      const next = this.phases[state.phaseIndex + 1];
+      this.hasNext = !!next;
+      if (next) {
+        this.nextType = next.type;
+        this.nextLabel = labels[next.type];
+        const s = Math.round(next.duration);
+        this.nextDurationLabel = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+      }
+
+      this.renderSegmentStrip(state.phaseIndex);
+    },
+
+    buildSegmentStrip() {
+      const container = this.$refs.segments;
+      container.innerHTML = '';
+      this.phases.forEach((phase, i) => {
+        const prevPath = this.phases[i - 1]?.path;
+        if (i > 0 && phase.path?.[0]?.index !== prevPath?.[0]?.index) {
+          const gap = document.createElement('div');
+          gap.className = 'block-gap';
+          container.appendChild(gap);
+        }
+        const seg = document.createElement('div');
+        seg.className = `seg type-${phase.type}`;
+        seg.dataset.index = i;
+        container.appendChild(seg);
+      });
+      this._segmentNodes = Array.from(this.$refs.segments.querySelectorAll('.seg'));
+      this._lastSegmentIndex = -1;
+    },
+
+    renderSegmentStrip(currentIndex) {
+      let activeNode = null;
+      this._segmentNodes.forEach((node) => {
+        const i = Number(node.dataset.index);
+        node.classList.remove('state-done', 'state-current', 'state-future');
+        if (i < currentIndex) {
+          node.classList.add('state-done');
+        } else if (i === currentIndex) {
+          node.classList.add('state-current');
+          activeNode = node;
+        } else {
+          node.classList.add('state-future');
+        }
+      });
+      if (currentIndex !== this._lastSegmentIndex) {
+        this._lastSegmentIndex = currentIndex;
+        activeNode?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
     },
 
     async requestWakeLock() {
