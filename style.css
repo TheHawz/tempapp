@@ -419,6 +419,8 @@ section.screen-running {
 }
 .segments {
   position: relative;
+  display: flex;
+  justify-content: center;
   overflow-x: auto;
   padding: 4px 20px 6px;
   scrollbar-width: none;
@@ -433,6 +435,7 @@ section.screen-running {
    que el scroll mueva a ambos a la vez — ver issue #28. */
 .diagram {
   position: relative;
+  flex: none;
 }
 
 .bracket {
