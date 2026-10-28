@@ -5,13 +5,13 @@ import { flatten } from './flatten.js';
 import { TimerEngine } from './engine.js';
 
 const EXAMPLE_WORKOUT = {
-  repeat: 2,
+  repeat: 1,
   children: [
     { repeat: 2, children: [
-      { type: "work", duration: 3 },
-      { type: "rest", duration: 3 }
+      { type: "work", duration: 25 },
+      { type: "rest", duration: 20 }
     ]},
-    { type: "rest", duration: 4, prep: 2 }
+    { type: "rest", duration: 20, prep: 10 }
   ]
 };
 
