@@ -262,20 +262,29 @@ section.screen-config {
 .group {
   position: relative;
   margin: 4px 0;
-  padding-left: 18px;
+  padding-left: 22px;
   border-left: 2px solid var(--guide-color, var(--text-faint));
 }
 
+/* Etiqueta "×N" pegada a la guía de color, en vertical pero con cada
+   carácter en su orientación normal (sin girar la cabeza para leerlo) —
+   writing-mode la apila, text-orientation:upright evita rotar los glifos. */
 .group-badge {
-  display: inline-block;
+  position: absolute;
+  left: -1px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  writing-mode: vertical-rl;
+  text-orientation: upright;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 0.72rem;
-  color: var(--guide-color, var(--text-faint));
-  background: color-mix(in srgb, var(--guide-color, var(--text-faint)) 16%, transparent);
+  font-size: 0.64rem;
+  letter-spacing: -0.05em;
+  color: var(--bg);
+  background: var(--guide-color, var(--text-faint));
   border-radius: 5px;
-  padding: 2px 7px;
-  margin-bottom: 4px;
+  padding: 5px 3px;
+  white-space: nowrap;
 }
 
 .group-children > .row:first-child { padding-top: 0; }
