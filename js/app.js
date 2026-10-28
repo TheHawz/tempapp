@@ -192,6 +192,8 @@ document.addEventListener('alpine:init', () => {
         const seg = document.createElement('div');
         seg.className = `seg type-${phase.type}`;
         seg.dataset.index = i;
+        const widthPx = Math.max(6, Math.min(60, Math.round(phase.duration)));
+        seg.style.width = widthPx + 'px';
         container.appendChild(seg);
       });
       this._segmentNodes = Array.from(this.$refs.segments.querySelectorAll('.seg'));
