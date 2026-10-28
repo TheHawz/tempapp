@@ -71,15 +71,16 @@ button {
   padding: 0.75rem 2rem;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #0f172a;
-  background-color: #38bdf8;
+  font-family: var(--font-body);
+  color: var(--bg);
+  background-color: var(--accent);
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
 }
 
 button:active {
-  background-color: #0ea5e9;
+  filter: brightness(0.88);
 }
 
 .type-selector {
@@ -88,13 +89,13 @@ button:active {
 }
 
 .type-selector button {
-  background-color: #1e293b;
-  color: #f8fafc;
+  background-color: var(--surface-2);
+  color: var(--text-dim);
 }
 
 .type-selector button.active {
-  background-color: #38bdf8;
-  color: #0f172a;
+  background-color: var(--accent);
+  color: var(--bg);
 }
 
 .config-form {
