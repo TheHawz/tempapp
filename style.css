@@ -91,12 +91,77 @@ button:active {
   filter: brightness(0.88);
 }
 
+/* ---- config screen ---- */
+/* Contenido más largo que una pantalla (dos formularios + vista previa en
+   pantallas estrechas), así que a diferencia del resto de pantallas esta
+   fluye desde arriba y permite scroll vertical en vez de centrarse — ver
+   issue #30. */
+section.screen-config {
+  justify-content: flex-start;
+  overflow-y: auto;
+  gap: 1.1rem;
+  padding: 1.75rem 1.25rem 2.5rem;
+}
+
+.config-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.config-header .wordmark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+.config-header .wordmark::before {
+  content: "$ ";
+  color: var(--text-faint);
+}
+
+.config-header h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin: 2px 0 0;
+}
+
+/* Tarjetas: mismo tratamiento visual que .next-hint en la pantalla running
+   (surface + border + radio), para que config comparta carácter con el
+   resto de la app en vez de verse como un formulario plano — ver issue #30. */
+.card {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.1rem 1rem;
+  text-align: left;
+}
+
+.card-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.85rem;
+}
+
 .type-selector {
   display: flex;
   gap: 0.75rem;
+  width: 100%;
 }
 
 .type-selector button {
+  flex: 1;
+  font-family: var(--font-display);
+  font-weight: 700;
   background-color: var(--surface-2);
   color: var(--text-dim);
 }
@@ -109,23 +174,30 @@ button:active {
 .config-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.9rem;
   width: 100%;
-  max-width: 320px;
 }
 
 .config-form label {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  font-size: 1rem;
+  gap: 0.4rem;
   text-align: left;
+}
+
+.config-form .field-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
 }
 
 .config-form input[type="number"] {
   min-height: 44px;
   padding: 0.5rem 0.75rem;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-family: var(--font-body);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
@@ -135,8 +207,79 @@ button:active {
 
 .form-error {
   color: #f87171;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  margin: 0;
 }
+
+.start-btn {
+  width: 100%;
+  max-width: 320px;
+}
+
+/* ---- vista previa vertical de jerarquía (config) ---- */
+/* Mismo sistema visual que el mockup aprobado en
+   /tmp/tempapp-mockup/loop-hierarchy-vertical.html: filas con punto +
+   etiqueta + duración, agrupadas con guías verticales de color por
+   profundidad en vez de los corchetes horizontales de running — ver
+   issue #30. */
+.tree {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+}
+
+.row-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex: none;
+}
+.row-dot.work { background: var(--work); }
+.row-dot.rest { background: var(--rest); }
+.row-dot.prep { background: var(--prep); }
+
+.row-label {
+  flex: 1;
+  font-size: 0.84rem;
+  color: var(--text);
+}
+
+.row-duration {
+  font-family: var(--font-display);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.group {
+  position: relative;
+  margin: 4px 0;
+  padding-left: 18px;
+  border-left: 2px solid var(--guide-color, var(--text-faint));
+}
+
+.group-badge {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: var(--guide-color, var(--text-faint));
+  background: color-mix(in srgb, var(--guide-color, var(--text-faint)) 16%, transparent);
+  border-radius: 5px;
+  padding: 2px 7px;
+  margin-bottom: 4px;
+}
+
+.group-children > .row:first-child { padding-top: 0; }
+.group-children > .row:last-child { padding-bottom: 0; }
 
 /* ---- running screen ---- */
 /* El grupo entero (aro + tira de segmentos + botón) fluye compacto y se

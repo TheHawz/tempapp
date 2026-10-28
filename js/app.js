@@ -9,6 +9,26 @@ import { buildBrackets } from './phaseHierarchy.js';
 
 const RING_CIRC = 2 * Math.PI * 54;
 
+const PHASE_LABELS = { work: 'Trabajo', rest: 'Descanso', prep: 'Preparación' };
+
+// Guías de color para la vista previa vertical de jerarquía (ver issue #30):
+// mismo criterio binario que ya usa buildSegmentStrip() para los corchetes
+// horizontales — el bucle más externo que se repite usa --loop-outer, el
+// resto usa --accent.
+function guideColorForDepth(depth) {
+  return depth === 0 ? 'var(--loop-outer)' : 'var(--accent)';
+}
+
+// Ns / N:ss / Nm — igual de legible que el "m:ss" de la pantalla running,
+// pero más compacto para la columna estrecha de la vista previa vertical.
+function formatPreviewDuration(totalSeconds) {
+  const s = Math.round(totalSeconds);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  const rem = s % 60;
+  return rem === 0 ? `${m}m` : `${m}:${String(rem).padStart(2, '0')}`;
+}
+
 document.addEventListener('alpine:init', () => {
   Alpine.data('timer', () => ({
     screen: 'config',
@@ -53,6 +73,102 @@ document.addEventListener('alpine:init', () => {
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && this.engine) this.update();
       });
+      // $refs.configPreview no está garantizado hasta que Alpine termine de
+      // procesar el resto del árbol del componente — ver issue #30.
+      this.$nextTick(() => this.renderConfigPreview());
+    },
+
+    // Vista previa vertical en vivo de la pantalla config — ver issue #30.
+    // Reconstruye el mismo `result.group` que start() usaría para arrancar
+    // el entreno, pero en un try/catch silencioso: si los campos actuales
+    // son inválidos, simplemente deja la última vista previa válida en
+    // pantalla (el error de verdad, si lo hay, ya lo muestra formError al
+    // pulsar "Empezar").
+    renderConfigPreview() {
+      let result;
+      try {
+        if (this.workoutType === 'series') {
+          result = buildSeriesWorkout({
+            initialPrep: this.seriesInitialPrep,
+            work: this.seriesWork,
+            rest: this.seriesRest,
+            restPrep: this.seriesRestPrep,
+            rounds: this.seriesRounds
+          });
+        } else {
+          result = buildRepeaterWorkout({
+            initialPrep: this.repeaterInitialPrep,
+            work: this.repeaterWork,
+            rest: this.repeaterRest,
+            cycleRounds: this.repeaterCycleRounds,
+            betweenRest: this.repeaterBetweenRest,
+            betweenRestPrep: this.repeaterBetweenRestPrep,
+            sets: this.repeaterSets
+          });
+        }
+      } catch (e) {
+        return;
+      }
+
+      const container = this.$refs.configPreview;
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (result.initialPrepSeconds > 0) {
+        container.appendChild(this.renderPreviewLeaf({ type: 'prep', duration: result.initialPrepSeconds }));
+      }
+      container.appendChild(this.renderPreviewGroup(result.group, 0));
+    },
+
+    renderPreviewLeaf(leaf) {
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      const dot = document.createElement('span');
+      dot.className = `row-dot ${leaf.type}`;
+
+      const label = document.createElement('span');
+      label.className = 'row-label';
+      label.textContent = PHASE_LABELS[leaf.type] || leaf.type;
+
+      const dur = document.createElement('span');
+      dur.className = 'row-duration';
+      dur.textContent = formatPreviewDuration(leaf.duration);
+
+      row.append(dot, label, dur);
+      return row;
+    },
+
+    // group = { repeat, children }, igual que produce buildSeriesWorkout /
+    // buildRepeaterWorkout. depth = cuántos ancestros con repeat>1 tiene
+    // este grupo (el root, si tiene repeat:1, no cuenta como nivel propio) —
+    // mismo criterio que el mockup aprobado en /tmp/tempapp-mockup.
+    renderPreviewGroup(group, depth) {
+      const isRepeated = group.repeat > 1;
+      const childDepth = depth + (isRepeated ? 1 : 0);
+      const container = isRepeated ? document.createElement('div') : document.createDocumentFragment();
+      let childrenHost = container;
+
+      if (isRepeated) {
+        container.className = 'group';
+        container.style.setProperty('--guide-color', guideColorForDepth(depth));
+
+        const badge = document.createElement('div');
+        badge.className = 'group-badge';
+        badge.textContent = `×${group.repeat}`;
+        container.appendChild(badge);
+
+        childrenHost = document.createElement('div');
+        childrenHost.className = 'group-children';
+        container.appendChild(childrenHost);
+      }
+
+      group.children.forEach((child) => {
+        if (child.repeat) childrenHost.appendChild(this.renderPreviewGroup(child, childDepth));
+        else childrenHost.appendChild(this.renderPreviewLeaf(child));
+      });
+
+      return container;
     },
 
     start() {
