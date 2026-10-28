@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -9,6 +9,28 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tempapp">
   <title>Tempapp</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"></script>
 </head>
-<body></body>
+<body>
+  <div x-data="{ screen: 'config' }">
+
+    <section x-show="screen === 'config'" x-transition>
+      <p>Configurar entreno</p>
+      <button type="button" @click="screen = 'running'">Empezar</button>
+    </section>
+
+    <section x-show="screen === 'running'" x-transition>
+      <p class="time">00:00</p>
+      <button type="button" @click="screen = 'paused'">Pausar</button>
+    </section>
+
+    <section x-show="screen === 'paused'" x-transition>
+      <p>Pausado</p>
+      <button type="button" @click="screen = 'running'">Reanudar</button>
+      <button type="button" @click="screen = 'config'">Reiniciar</button>
+    </section>
+
+  </div>
+</body>
 </html>
