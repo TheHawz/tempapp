@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 160" width="620" height="160">
+  <path d="M80 80 L129.24 88.68 A50 50 0 1 1 80 30 Z" fill="#ffb000"/>
+  <text x="166" y="107" font-family="'JetBrains Mono', 'Fira Code', Consolas, monospace"
+    font-size="64" font-weight="700">
+    <tspan fill="#0a0e0c" fill-opacity="0.35">$ </tspan><tspan fill="#0a0e0c">tempapp</tspan>
+  </text>
+</svg>
