@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 160" width="560" height="160">
+  <g transform="rotate(-90 80 80)">
+    <circle cx="80" cy="80" r="56" fill="none" stroke="#38bdf8" stroke-width="14"
+      stroke-linecap="round" stroke-dasharray="222.21 500" stroke-dashoffset="0"/>
+    <circle cx="80" cy="80" r="56" fill="none" stroke="#fb923c" stroke-width="14"
+      stroke-linecap="round" stroke-dasharray="119.65 500" stroke-dashoffset="-227.21"/>
+  </g>
+  <text x="172" y="105" font-family="Manrope, 'Segoe UI', Arial, sans-serif"
+    font-size="72" font-weight="800" letter-spacing="-1" fill="#0f172a">Tempapp</text>
+</svg>

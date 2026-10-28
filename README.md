@@ -1,4 +1,4 @@
-# Tempapp
+<img src="icons/logo.svg" alt="Tempapp" height="48">
 
 Timer de entrenos por intervalos (series y repeaters) — sin anuncios, sin pago, 100% adaptado a cómo entrenas.
 
