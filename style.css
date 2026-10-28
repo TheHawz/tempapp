@@ -118,10 +118,11 @@ button:active {
   min-height: 44px;
   padding: 0.5rem 0.75rem;
   font-size: 1.1rem;
-  border: 1px solid #334155;
+  font-family: var(--font-body);
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
-  background-color: #1e293b;
-  color: #f8fafc;
+  background-color: var(--surface-2);
+  color: var(--text);
 }
 
 .form-error {
