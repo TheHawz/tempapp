@@ -355,7 +355,9 @@ document.addEventListener('alpine:init', () => {
       const bracketsTop = maxDepth >= 0 ? (maxDepth + 1) * ROW_H + 10 : 0;
 
       this.brackets.forEach((b) => {
-        const row = maxDepth - b.depth;
+        // depth 0 (bucle externo) va arriba del todo; los niveles más
+        // internos se apilan por debajo, más cerca de los cuadrados.
+        const row = b.depth;
         const left = positions[b.start].x;
         const right = positions[b.end].x + positions[b.end].w;
         const color = b.depth === 0 ? LOOP_OUTER : LOOP_INNER;
