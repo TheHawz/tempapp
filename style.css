@@ -1,24 +1,24 @@
 :root {
-  --bg: #15171d;
-  --surface: #1d2027;
-  --surface-2: #262a33;
-  --text: #f3f1ec;
-  --text-dim: #8b8d97;
-  --text-faint: #565964;
-  --border: #2a2e37;
+  --bg: #0a0e0c;
+  --surface: #14181a;
+  --surface-2: #1f2422;
+  --text: #fffdf7;
+  --text-dim: #a6a08c;
+  --text-faint: #6f6a58;
+  --border: #242a26;
 
-  --work: #8fd9b6;
-  --work-dim: #3c5649;
-  --rest: #e8a2a2;
-  --rest-dim: #573e3e;
-  --prep: #f0d28a;
-  --prep-dim: #584e32;
+  --work: #ffb000;
+  --work-dim: rgba(255, 176, 0, 0.16);
+  --rest: rgba(255, 176, 0, 0.32);
+  --rest-dim: rgba(255, 176, 0, 0.10);
+  --prep: rgba(255, 176, 0, 0.62);
+  --prep-dim: rgba(255, 176, 0, 0.14);
 
-  --accent: #7fb5c9;
+  --accent: #ffb000;
 
-  --font-display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
-  --font-body: 'Work Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
+  --font-display: 'JetBrains Mono', ui-monospace, monospace;
+  --font-body: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace; /* ya era IBM Plex Mono, no hace falta tocarlo */
 }
 
 *,
@@ -71,15 +71,16 @@ button {
   padding: 0.75rem 2rem;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #0f172a;
-  background-color: #38bdf8;
+  font-family: var(--font-body);
+  color: var(--bg);
+  background-color: var(--accent);
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
 }
 
 button:active {
-  background-color: #0ea5e9;
+  filter: brightness(0.88);
 }
 
 .type-selector {
@@ -88,13 +89,13 @@ button:active {
 }
 
 .type-selector button {
-  background-color: #1e293b;
-  color: #f8fafc;
+  background-color: var(--surface-2);
+  color: var(--text-dim);
 }
 
 .type-selector button.active {
-  background-color: #38bdf8;
-  color: #0f172a;
+  background-color: var(--accent);
+  color: var(--bg);
 }
 
 .config-form {
@@ -117,10 +118,11 @@ button:active {
   min-height: 44px;
   padding: 0.5rem 0.75rem;
   font-size: 1.1rem;
-  border: 1px solid #334155;
+  font-family: var(--font-body);
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
-  background-color: #1e293b;
-  color: #f8fafc;
+  background-color: var(--surface-2);
+  color: var(--text);
 }
 
 .form-error {
@@ -293,9 +295,9 @@ section.screen-running {
 .seg.state-future { background: transparent; opacity: .5; }
 
 .seg.state-current { height: 28px; opacity: 1; }
-.seg.state-current.type-work { background: var(--work); box-shadow: 0 0 0 3px rgba(143, 217, 182, .18); }
-.seg.state-current.type-rest { background: var(--rest); box-shadow: 0 0 0 3px rgba(232, 162, 162, .18); }
-.seg.state-current.type-prep { background: var(--prep); box-shadow: 0 0 0 3px rgba(240, 210, 138, .18); }
+.seg.state-current.type-work { background: var(--work); box-shadow: 0 0 0 3px rgba(255, 176, 0, .18); }
+.seg.state-current.type-rest { background: var(--rest); box-shadow: 0 0 0 3px rgba(255, 176, 0, .18); }
+.seg.state-current.type-prep { background: var(--prep); box-shadow: 0 0 0 3px rgba(255, 176, 0, .18); }
 
 .block-gap { width: 7px; flex: none; }
 
