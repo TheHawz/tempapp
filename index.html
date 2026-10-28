@@ -18,71 +18,85 @@
 <body>
   <div class="app" x-data="timer">
 
-    <section x-show="screen === 'config'" x-transition>
-      <p>Configurar entreno</p>
+    <section x-show="screen === 'config'" x-transition class="screen-config">
+      <div class="config-header">
+        <div class="wordmark">tempapp</div>
+        <h1>Configurar entreno</h1>
+      </div>
 
       <div class="type-selector">
-        <button type="button" :class="workoutType === 'series' ? 'active' : ''" @click="workoutType = 'series'">Serie</button>
-        <button type="button" :class="workoutType === 'repeater' ? 'active' : ''" @click="workoutType = 'repeater'">Repeater</button>
+        <button type="button" :class="workoutType === 'series' ? 'active' : ''" @click="workoutType = 'series'; renderConfigPreview()">Serie</button>
+        <button type="button" :class="workoutType === 'repeater' ? 'active' : ''" @click="workoutType = 'repeater'; renderConfigPreview()">Repeater</button>
       </div>
 
-      <div class="config-form" x-show="workoutType === 'series'">
-        <label>
-          Preparación inicial (s)
-          <input type="number" min="0" step="1" x-model.number="seriesInitialPrep">
-        </label>
-        <label>
-          Trabajo (s)
-          <input type="number" min="0" step="1" x-model.number="seriesWork">
-        </label>
-        <label>
-          Descanso (s)
-          <input type="number" min="0" step="1" x-model.number="seriesRest">
-        </label>
-        <label>
-          Preparación de descanso (s)
-          <input type="number" min="0" step="1" x-model.number="seriesRestPrep">
-        </label>
-        <label>
-          Rondas
-          <input type="number" min="0" step="1" x-model.number="seriesRounds">
-        </label>
+      <div class="card" x-show="workoutType === 'series'">
+        <div class="card-label">Campos &middot; Serie</div>
+        <div class="config-form">
+          <label>
+            <span class="field-name">Preparación inicial (s)</span>
+            <input type="number" min="0" step="1" x-model.number="seriesInitialPrep" @input="renderConfigPreview()">
+          </label>
+          <label>
+            <span class="field-name">Trabajo (s)</span>
+            <input type="number" min="0" step="1" x-model.number="seriesWork" @input="renderConfigPreview()">
+          </label>
+          <label>
+            <span class="field-name">Descanso (s)</span>
+            <input type="number" min="0" step="1" x-model.number="seriesRest" @input="renderConfigPreview()">
+          </label>
+          <label>
+            <span class="field-name">Preparación de descanso (s)</span>
+            <input type="number" min="0" step="1" x-model.number="seriesRestPrep" @input="renderConfigPreview()">
+          </label>
+          <label>
+            <span class="field-name">Rondas</span>
+            <input type="number" min="0" step="1" x-model.number="seriesRounds" @input="renderConfigPreview()">
+          </label>
+        </div>
       </div>
 
-      <div class="config-form" x-show="workoutType === 'repeater'">
-        <label>
-          Preparación inicial (s)
-          <input type="number" min="0" step="1" x-model.number="repeaterInitialPrep">
-        </label>
-        <label>
-          Trabajo (s)
-          <input type="number" min="0" step="1" x-model.number="repeaterWork">
-        </label>
-        <label>
-          Descanso (s)
-          <input type="number" min="0" step="1" x-model.number="repeaterRest">
-        </label>
-        <label>
-          Repeticiones del ciclo
-          <input type="number" min="0" step="1" x-model.number="repeaterCycleRounds">
-        </label>
-        <label>
-          Descanso entre sets (s)
-          <input type="number" min="0" step="1" x-model.number="repeaterBetweenRest">
-        </label>
-        <label>
-          Preparación del descanso entre sets (s)
-          <input type="number" min="0" step="1" x-model.number="repeaterBetweenRestPrep">
-        </label>
-        <label>
-          Sets
-          <input type="number" min="0" step="1" x-model.number="repeaterSets">
-        </label>
+      <div class="card" x-show="workoutType === 'repeater'">
+        <div class="card-label">Campos &middot; Repeater</div>
+        <div class="config-form">
+          <label>
+            <span class="field-name">Preparación inicial (s)</span>
+            <input type="number" min="0" step="1" x-model.number="repeaterInitialPrep" @input="renderConfigPreview()">
+          </label>
+          <label>
+            <span class="field-name">Trabajo (s)</span>
+            <input type="number" min="0" step="1" x-model.number="repeaterWork" @input="renderConfigPreview()">
+          </label>
+          <label>
+            <span class="field-name">Descanso (s)</span>
+            <input type="number" min="0" step="1" x-model.number="repeaterRest" @input="renderConfigPreview()">
+          </label>
+          <label>
+            <span class="field-name">Repeticiones del ciclo</span>
+            <input type="number" min="0" step="1" x-model.number="repeaterCycleRounds" @input="renderConfigPreview()">
+          </label>
+          <label>
+            <span class="field-name">Descanso entre sets (s)</span>
+            <input type="number" min="0" step="1" x-model.number="repeaterBetweenRest" @input="renderConfigPreview()">
+          </label>
+          <label>
+            <span class="field-name">Preparación del descanso entre sets (s)</span>
+            <input type="number" min="0" step="1" x-model.number="repeaterBetweenRestPrep" @input="renderConfigPreview()">
+          </label>
+          <label>
+            <span class="field-name">Sets</span>
+            <input type="number" min="0" step="1" x-model.number="repeaterSets" @input="renderConfigPreview()">
+          </label>
+        </div>
+      </div>
+
+      <div class="card preview-card">
+        <div class="card-label">Vista previa de la estructura</div>
+        <div class="tree" x-ref="configPreview"></div>
       </div>
 
       <p class="form-error" x-show="formError" x-text="formError"></p>
 
-      <button type="button" @click="start()">Empezar</button>
+      <button type="button" class="start-btn" @click="start()">Empezar</button>
     </section>
 
     <section x-show="screen === 'running'" x-transition class="screen-running">
