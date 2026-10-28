@@ -10,6 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tempapp">
   <title>Tempapp</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;900&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="style.css">
   <script type="module" src="js/app.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js"></script>
@@ -84,10 +85,38 @@
       <button type="button" @click="start()">Empezar</button>
     </section>
 
-    <section x-show="screen === 'running'" x-transition>
-      <p x-text="phaseLabel"></p>
-      <p class="time" x-text="remainingLabel"></p>
-      <button type="button" @click="pause()">Pausar</button>
+    <section x-show="screen === 'running'" x-transition class="screen-running">
+      <div class="stage" :data-phase="phaseType">
+        <button type="button" class="sound-toggle-btn" @click="toggleSound()" x-text="soundOn ? '🔊' : '🔇'" aria-label="Silenciar sonido"></button>
+        <div class="eyebrow" x-text="phaseLabel"></div>
+
+        <div class="ring-wrap">
+          <svg viewBox="0 0 120 120">
+            <circle class="ring-track" cx="60" cy="60" r="54"></circle>
+            <circle class="ring-progress" x-ref="ring" cx="60" cy="60" r="54"
+              stroke-dasharray="339.3" :style="{ strokeDashoffset: ringOffset }"></circle>
+          </svg>
+          <div class="countdown" x-text="remainingLabel"></div>
+        </div>
+
+        <div class="position" x-show="positionBlockText">
+          <span x-text="positionBlockText"></span>
+          <template x-if="positionSectorText"><span> &middot; </span></template>
+          <span x-text="positionSectorText"></span>
+        </div>
+
+        <div class="next-hint" x-show="hasNext" :style="'--dot-color: var(--' + nextType + ')'">
+          <span class="dot"></span>
+          Siguiente: <b x-text="nextLabel"></b>&nbsp;&middot; <span x-text="nextDurationLabel"></span>
+        </div>
+      </div>
+
+      <div class="segments-wrap">
+        <div class="segments-label">Progreso del entreno</div>
+        <div class="segments" x-ref="segments"></div>
+      </div>
+
+      <button type="button" class="pause-btn" @click="pause()">Pausar</button>
     </section>
 
     <section x-show="screen === 'paused'" x-transition>

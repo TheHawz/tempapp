@@ -1,9 +1,12 @@
 // app.js — entry point de la app. Conecta flatten() + TimerEngine con la UI.
 // No exporta nada: registra el componente Alpine 'timer' al cargar.
 
-import { flatten } from './flatten.js';
+import { flattenWithPath } from './flattenPath.js';
 import { TimerEngine } from './engine.js';
 import { buildSeriesWorkout, buildRepeaterWorkout } from './workoutBuilder.js';
+import { createSoundController } from './sound.js';
+
+const RING_CIRC = 2 * Math.PI * 54;
 
 document.addEventListener('alpine:init', () => {
   Alpine.data('timer', () => ({
@@ -14,8 +17,21 @@ document.addEventListener('alpine:init', () => {
     wakeLock: null,
     rafId: null,
 
+    phases: [],
+    phaseType: '',
+    ringOffset: 0,
+    positionBlockText: '',
+    positionSectorText: '',
+    hasNext: false,
+    nextType: '',
+    nextLabel: '',
+    nextDurationLabel: '',
+
     workoutType: 'series',
     formError: '',
+
+    sound: createSoundController(),
+    soundOn: true,
 
     seriesInitialPrep: 5,
     seriesWork: 30,
@@ -38,6 +54,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     start() {
+      this.sound.unlock();
       this.formError = '';
       let result;
       try {
@@ -64,13 +81,17 @@ document.addEventListener('alpine:init', () => {
         this.formError = e.message;
         return;
       }
-      const phases = flatten(result.group);
+      const phases = flattenWithPath(result.group);
       if (result.initialPrepSeconds > 0) {
         phases.unshift({ type: 'prep', duration: result.initialPrepSeconds });
       }
+      this.phases = phases;
       cancelAnimationFrame(this.rafId);
       this.engine = new TimerEngine(phases);
       this.engine.start();
+      this._lastPhaseIndex = -1;
+      this._lastTickSecond = null;
+      this.buildSegmentStrip();
       this.screen = 'running';
       this.requestWakeLock();
       this.loop();
@@ -84,6 +105,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     resumeTimer() {
+      this.sound.unlock();
       cancelAnimationFrame(this.rafId);
       this.engine.resume();
       this.screen = 'running';
@@ -112,14 +134,90 @@ document.addEventListener('alpine:init', () => {
         this.screen = 'done';
         cancelAnimationFrame(this.rafId);
         this.releaseWakeLock();
+        this.renderSegmentStrip(this.phases.length);
+        this.sound.playComplete();
+        if (this.soundOn) this.sound.vibrate([80, 60, 80, 60, 160]);
         return;
       }
-      const labels = { work: 'TRABAJO', rest: 'DESCANSO', prep: 'PREPÁRATE' };
+      const labels = { work: 'Trabajo', rest: 'Descanso', prep: 'Prepárate' };
       this.phaseLabel = labels[state.phase.type];
       const totalSeconds = Math.ceil(state.remainingMs / 1000);
       const mm = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
       const ss = String(totalSeconds % 60).padStart(2, '0');
       this.remainingLabel = `${mm}:${ss}`;
+
+      this.phaseType = state.phase.type;
+
+      const progress = 1 - (state.remainingMs / (state.phase.duration * 1000));
+      this.ringOffset = RING_CIRC * (1 - progress);
+
+      const path = state.phase.path || [];
+      this.positionBlockText = path.length > 0 ? `Bloque ${path[0].index} de ${path[0].total}` : '';
+      this.positionSectorText = path.length > 1 ? `Sector ${path[1].index} de ${path[1].total}` : '';
+
+      const next = this.phases[state.phaseIndex + 1];
+      this.hasNext = !!next;
+      if (next) {
+        this.nextType = next.type;
+        this.nextLabel = labels[next.type];
+        const s = Math.round(next.duration);
+        this.nextDurationLabel = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+      }
+
+      const secondsLeft = Math.ceil(state.remainingMs / 1000);
+      if (state.phaseIndex !== this._lastPhaseIndex) {
+        this._lastPhaseIndex = state.phaseIndex;
+        this._lastTickSecond = null;
+        this.sound.playTransition(state.phase.type);
+        if (this.soundOn) this.sound.vibrate([60, 40, 60]);
+      } else if (secondsLeft <= 3 && secondsLeft >= 1 && secondsLeft !== this._lastTickSecond) {
+        this._lastTickSecond = secondsLeft;
+        this.sound.playTick();
+        if (this.soundOn) this.sound.vibrate(40);
+      }
+
+      this.renderSegmentStrip(state.phaseIndex);
+    },
+
+    buildSegmentStrip() {
+      const container = this.$refs.segments;
+      container.innerHTML = '';
+      this.phases.forEach((phase, i) => {
+        const prevPath = this.phases[i - 1]?.path;
+        if (i > 0 && phase.path?.[0]?.index !== prevPath?.[0]?.index) {
+          const gap = document.createElement('div');
+          gap.className = 'block-gap';
+          container.appendChild(gap);
+        }
+        const seg = document.createElement('div');
+        seg.className = `seg type-${phase.type}`;
+        seg.dataset.index = i;
+        const widthPx = Math.max(6, Math.min(60, Math.round(phase.duration)));
+        seg.style.width = widthPx + 'px';
+        container.appendChild(seg);
+      });
+      this._segmentNodes = Array.from(this.$refs.segments.querySelectorAll('.seg'));
+      this._lastSegmentIndex = -1;
+    },
+
+    renderSegmentStrip(currentIndex) {
+      let activeNode = null;
+      this._segmentNodes.forEach((node) => {
+        const i = Number(node.dataset.index);
+        node.classList.remove('state-done', 'state-current', 'state-future');
+        if (i < currentIndex) {
+          node.classList.add('state-done');
+        } else if (i === currentIndex) {
+          node.classList.add('state-current');
+          activeNode = node;
+        } else {
+          node.classList.add('state-future');
+        }
+      });
+      if (currentIndex !== this._lastSegmentIndex) {
+        this._lastSegmentIndex = currentIndex;
+        activeNode?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
     },
 
     async requestWakeLock() {
@@ -130,6 +228,11 @@ document.addEventListener('alpine:init', () => {
 
     releaseWakeLock() {
       try { this.wakeLock?.release(); this.wakeLock = null; } catch (e) { /* no-op */ }
+    },
+
+    toggleSound() {
+      this.soundOn = !this.soundOn;
+      this.sound.setEnabled(this.soundOn);
     }
   }));
 });
