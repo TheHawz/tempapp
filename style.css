@@ -136,6 +136,7 @@ section.screen-running {
 }
 
 .stage {
+  position: relative;
   flex: 1;
   width: 100%;
   display: flex;
@@ -145,6 +146,23 @@ section.screen-running {
   gap: 14px;
   padding: 28px 20px 10px;
   text-align: center;
+}
+
+.sound-toggle-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 1.05rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .stage[data-phase="work"] { --phase: var(--work); --phase-dim: var(--work-dim); }

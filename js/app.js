@@ -4,6 +4,7 @@
 import { flattenWithPath } from './flattenPath.js';
 import { TimerEngine } from './engine.js';
 import { buildSeriesWorkout, buildRepeaterWorkout } from './workoutBuilder.js';
+import { createSoundController } from './sound.js';
 
 const RING_CIRC = 2 * Math.PI * 54;
 
@@ -29,6 +30,9 @@ document.addEventListener('alpine:init', () => {
     workoutType: 'series',
     formError: '',
 
+    sound: createSoundController(),
+    soundOn: true,
+
     seriesInitialPrep: 5,
     seriesWork: 30,
     seriesRest: 15,
@@ -50,6 +54,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     start() {
+      this.sound.unlock();
       this.formError = '';
       let result;
       try {
@@ -84,6 +89,8 @@ document.addEventListener('alpine:init', () => {
       cancelAnimationFrame(this.rafId);
       this.engine = new TimerEngine(phases);
       this.engine.start();
+      this._lastPhaseIndex = -1;
+      this._lastTickSecond = null;
       this.buildSegmentStrip();
       this.screen = 'running';
       this.requestWakeLock();
@@ -98,6 +105,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     resumeTimer() {
+      this.sound.unlock();
       cancelAnimationFrame(this.rafId);
       this.engine.resume();
       this.screen = 'running';
@@ -127,6 +135,8 @@ document.addEventListener('alpine:init', () => {
         cancelAnimationFrame(this.rafId);
         this.releaseWakeLock();
         this.renderSegmentStrip(this.phases.length);
+        this.sound.playComplete();
+        if (this.soundOn) this.sound.vibrate([80, 60, 80, 60, 160]);
         return;
       }
       const labels = { work: 'Trabajo', rest: 'Descanso', prep: 'Prepárate' };
@@ -152,6 +162,18 @@ document.addEventListener('alpine:init', () => {
         this.nextLabel = labels[next.type];
         const s = Math.round(next.duration);
         this.nextDurationLabel = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+      }
+
+      const secondsLeft = Math.ceil(state.remainingMs / 1000);
+      if (state.phaseIndex !== this._lastPhaseIndex) {
+        this._lastPhaseIndex = state.phaseIndex;
+        this._lastTickSecond = null;
+        this.sound.playTransition(state.phase.type);
+        if (this.soundOn) this.sound.vibrate([60, 40, 60]);
+      } else if (secondsLeft <= 3 && secondsLeft >= 1 && secondsLeft !== this._lastTickSecond) {
+        this._lastTickSecond = secondsLeft;
+        this.sound.playTick();
+        if (this.soundOn) this.sound.vibrate(40);
       }
 
       this.renderSegmentStrip(state.phaseIndex);
@@ -204,6 +226,11 @@ document.addEventListener('alpine:init', () => {
 
     releaseWakeLock() {
       try { this.wakeLock?.release(); this.wakeLock = null; } catch (e) { /* no-op */ }
+    },
+
+    toggleSound() {
+      this.soundOn = !this.soundOn;
+      this.sound.setEnabled(this.soundOn);
     }
   }));
 });
