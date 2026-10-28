@@ -1,8 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 160" width="620" height="160">
-  <path d="M52 60 L92 96 L52 132" fill="none" stroke="#ffb000" stroke-width="16"
-    stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="106" y="120" width="34" height="16" rx="4" fill="#ffb000"/>
-  <text x="178" y="107" font-family="'JetBrains Mono', 'Fira Code', Consolas, monospace"
+  <circle cx="80" cy="80" r="50" fill="none" stroke="#ffb000" stroke-width="5"/>
+  <path d="M80 30 A50 50 0 0 1 80 130 Z" fill="#ffb000"/>
+  <text x="166" y="107" font-family="'JetBrains Mono', 'Fira Code', Consolas, monospace"
     font-size="64" font-weight="700">
     <tspan fill="#0a0e0c" fill-opacity="0.35">$ </tspan><tspan fill="#0a0e0c">tempapp</tspan>
   </text>
