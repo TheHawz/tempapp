@@ -153,11 +153,6 @@ document.addEventListener('alpine:init', () => {
         container.className = 'group';
         container.style.setProperty('--guide-color', guideColorForDepth(depth));
 
-        const badge = document.createElement('div');
-        badge.className = 'group-badge';
-        badge.textContent = `×${group.repeat}`;
-        container.appendChild(badge);
-
         childrenHost = document.createElement('div');
         childrenHost.className = 'group-children';
         container.appendChild(childrenHost);
@@ -167,6 +162,13 @@ document.addEventListener('alpine:init', () => {
         if (child.repeat) childrenHost.appendChild(this.renderPreviewGroup(child, childDepth));
         else childrenHost.appendChild(this.renderPreviewLeaf(child));
       });
+
+      if (isRepeated) {
+        const badge = document.createElement('div');
+        badge.className = 'group-badge';
+        badge.textContent = `×${group.repeat}`;
+        container.appendChild(badge);
+      }
 
       return container;
     },
