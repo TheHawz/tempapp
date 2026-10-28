@@ -31,6 +31,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     start() {
+      cancelAnimationFrame(this.rafId);
       const phases = flatten(EXAMPLE_WORKOUT);
       this.engine = new TimerEngine(phases);
       this.engine.start();
@@ -47,6 +48,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     resumeTimer() {
+      cancelAnimationFrame(this.rafId);
       this.engine.resume();
       this.screen = 'running';
       this.requestWakeLock();
