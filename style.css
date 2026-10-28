@@ -15,6 +15,7 @@
   --prep-dim: rgba(255, 176, 0, 0.14);
 
   --accent: #ffb000;
+  --loop-outer: #5b8dc4;
 
   --font-display: 'JetBrains Mono', ui-monospace, monospace;
   --font-body: 'IBM Plex Mono', ui-monospace, monospace;
@@ -39,6 +40,13 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
+}
+
+/* Columna tipo app, centrada en viewports anchos (escritorio); en móvil
+   ocupa el ancho completo igualmente ya que max-width > viewport. */
+.app {
+  max-width: 480px;
+  margin: 0 auto;
 }
 
 section {
@@ -131,21 +139,23 @@ button:active {
 }
 
 /* ---- running screen ---- */
+/* El grupo entero (aro + tira de segmentos + botón) fluye compacto y se
+   centra como un solo bloque — antes `.stage` tenía `flex:1`, lo que lo
+   estiraba a toda la altura sobrante del viewport y dejaba un hueco enorme
+   antes del botón "Pausar" en ventanas de escritorio altas (ver issue #28). */
 section.screen-running {
-  justify-content: flex-start;
   padding: 0;
   gap: 0;
 }
 
 .stage {
   position: relative;
-  flex: 1;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 20px;
   padding: 28px 20px 10px;
   text-align: center;
 }
@@ -265,9 +275,7 @@ section.screen-running {
   padding: 0 20px 8px;
 }
 .segments {
-  display: flex;
-  align-items: center;
-  gap: 3px;
+  position: relative;
   overflow-x: auto;
   padding: 4px 20px 6px;
   scrollbar-width: none;
@@ -275,6 +283,49 @@ section.screen-running {
   mask-image: linear-gradient(90deg, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
 }
 .segments::-webkit-scrollbar { display: none; }
+
+/* `.diagram` es el único hijo directo de `.segments` (el contenedor con
+   overflow-x:auto) y agrupa tanto las filas de corchetes como la tira de
+   segmentos (`.leaves`) en el MISMO sistema de coordenadas horizontal, para
+   que el scroll mueva a ambos a la vez — ver issue #28. */
+.diagram {
+  position: relative;
+}
+
+.bracket {
+  position: absolute;
+  height: 0;
+  border-top: 2px solid var(--bracket-color, var(--accent));
+}
+.bracket::before,
+.bracket::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 6px;
+  background: var(--bracket-color, var(--accent));
+}
+.bracket::before { left: 0; }
+.bracket::after { right: 0; }
+
+.bracket-label {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.64rem;
+  color: var(--bracket-color, var(--accent));
+  white-space: nowrap;
+}
+
+.leaves {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
 
 .seg {
   flex: none;

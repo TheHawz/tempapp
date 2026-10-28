@@ -5,6 +5,7 @@ import { flattenWithPath } from './flattenPath.js';
 import { TimerEngine } from './engine.js';
 import { buildSeriesWorkout, buildRepeaterWorkout } from './workoutBuilder.js';
 import { createSoundController } from './sound.js';
+import { buildBrackets } from './phaseHierarchy.js';
 
 const RING_CIRC = 2 * Math.PI * 54;
 
@@ -18,6 +19,7 @@ document.addEventListener('alpine:init', () => {
     rafId: null,
 
     phases: [],
+    brackets: [],
     phaseType: '',
     ringOffset: 0,
     positionBlockText: '',
@@ -83,9 +85,13 @@ document.addEventListener('alpine:init', () => {
       }
       const phases = flattenWithPath(result.group);
       if (result.initialPrepSeconds > 0) {
-        phases.unshift({ type: 'prep', duration: result.initialPrepSeconds });
+        // path: [] — no pertenece a ningún grupo que se repita, buildBrackets
+        // (phaseHierarchy.js) espera que toda fase tenga `path` (aunque esté
+        // vacío) para poder comparar `path.length` contra la profundidad.
+        phases.unshift({ type: 'prep', duration: result.initialPrepSeconds, path: [] });
       }
       this.phases = phases;
+      this.brackets = buildBrackets(this.phases);
       cancelAnimationFrame(this.rafId);
       this.engine = new TimerEngine(phases);
       this.engine.start();
@@ -182,21 +188,88 @@ document.addEventListener('alpine:init', () => {
     buildSegmentStrip() {
       const container = this.$refs.segments;
       container.innerHTML = '';
+
+      // Mismo sistema de coordenadas que el layout flex real de `.leaves`
+      // (gap:3px entre hijos, .block-gap de 7px) para que los corchetes
+      // absolutamente posicionados caigan exactamente sobre los segmentos
+      // que resumen — ver issue #28.
+      const FLEX_GAP = 3;
+      const GAP_WIDTH = 7;
+      const ROW_H = 24;
+      const LEAF_ROW_H = 34;
+      const LOOP_OUTER = 'var(--loop-outer)';
+      const LOOP_INNER = 'var(--accent)';
+
+      const diagram = document.createElement('div');
+      diagram.className = 'diagram';
+
+      const leaves = document.createElement('div');
+      leaves.className = 'leaves';
+
+      const positions = [];
+      let cursorX = 0;
+      let isFirstChild = true;
+
       this.phases.forEach((phase, i) => {
         const prevPath = this.phases[i - 1]?.path;
         if (i > 0 && phase.path?.[0]?.index !== prevPath?.[0]?.index) {
+          if (!isFirstChild) cursorX += FLEX_GAP;
           const gap = document.createElement('div');
           gap.className = 'block-gap';
-          container.appendChild(gap);
+          leaves.appendChild(gap);
+          cursorX += GAP_WIDTH;
+          isFirstChild = false;
         }
+
+        if (!isFirstChild) cursorX += FLEX_GAP;
+        const widthPx = Math.max(6, Math.min(60, Math.round(phase.duration)));
+        positions[i] = { x: cursorX, w: widthPx };
+        cursorX += widthPx;
+        isFirstChild = false;
+
         const seg = document.createElement('div');
         seg.className = `seg type-${phase.type}`;
         seg.dataset.index = i;
-        const widthPx = Math.max(6, Math.min(60, Math.round(phase.duration)));
         seg.style.width = widthPx + 'px';
-        container.appendChild(seg);
+        leaves.appendChild(seg);
       });
-      this._segmentNodes = Array.from(this.$refs.segments.querySelectorAll('.seg'));
+
+      const totalWidth = cursorX;
+      const maxDepth = this.brackets.reduce((m, b) => Math.max(m, b.depth), -1);
+      const bracketsTop = maxDepth >= 0 ? (maxDepth + 1) * ROW_H + 10 : 0;
+
+      this.brackets.forEach((b) => {
+        const row = maxDepth - b.depth;
+        const left = positions[b.start].x;
+        const right = positions[b.end].x + positions[b.end].w;
+        const color = b.depth === 0 ? LOOP_OUTER : LOOP_INNER;
+
+        const el = document.createElement('div');
+        el.className = 'bracket';
+        el.style.left = left + 'px';
+        el.style.width = (right - left) + 'px';
+        el.style.top = (row * ROW_H + 14) + 'px';
+        el.style.setProperty('--bracket-color', color);
+
+        const label = document.createElement('div');
+        label.className = 'bracket-label';
+        label.textContent = `×${b.total}`;
+        label.style.setProperty('--bracket-color', color);
+        el.appendChild(label);
+
+        diagram.appendChild(el);
+      });
+
+      leaves.style.position = 'absolute';
+      leaves.style.left = '0';
+      leaves.style.top = bracketsTop + 'px';
+
+      diagram.style.width = totalWidth + 'px';
+      diagram.style.height = (bracketsTop + LEAF_ROW_H) + 'px';
+      diagram.appendChild(leaves);
+      container.appendChild(diagram);
+
+      this._segmentNodes = Array.from(leaves.querySelectorAll('.seg'));
       this._lastSegmentIndex = -1;
     },
 
