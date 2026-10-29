@@ -51,6 +51,33 @@ export class TimerEngine {
       : 0;
   }
 
+  skipNext() {
+    this.getState(); // normaliza phaseIndex/phaseStart por si había huecos de tiempo sin leer
+    this._goToPhase(this.phaseIndex + 1);
+  }
+
+  skipPrevious() {
+    this.getState();
+    this._goToPhase(Math.max(this.phaseIndex - 1, 0));
+  }
+
+  _goToPhase(index) {
+    if (index >= this.phases.length) {
+      this.phaseIndex = this.phases.length;
+      this.running = false;
+      this.phaseStart = null;
+      this.pausedRemainingMs = 0;
+      return;
+    }
+    this.phaseIndex = index;
+    const durationMs = this.phases[index].duration * 1000;
+    if (this.running) {
+      this.phaseStart = this.now();
+    } else {
+      this.pausedRemainingMs = durationMs;
+    }
+  }
+
   getState() {
     if (this.phases.length === 0) {
       return {
