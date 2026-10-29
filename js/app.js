@@ -6,6 +6,7 @@ import { TimerEngine } from './engine.js';
 import { buildSeriesWorkout, buildRepeaterWorkout } from './workoutBuilder.js';
 import { createSoundController } from './sound.js';
 import { buildBrackets } from './phaseHierarchy.js';
+import { parseWorkoutText } from './parseWorkoutText.js';
 
 const RING_CIRC = 2 * Math.PI * 54;
 
@@ -69,6 +70,9 @@ document.addEventListener('alpine:init', () => {
     repeaterBetweenRestPrep: 10,
     repeaterSets: 2,
 
+    textInitialPrep: 5,
+    textWorkoutInput: "(10''/20''x5 /3') x4",
+
     init() {
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && this.engine) this.update();
@@ -95,7 +99,7 @@ document.addEventListener('alpine:init', () => {
             restPrep: this.seriesRestPrep,
             rounds: this.seriesRounds
           });
-        } else {
+        } else if (this.workoutType === 'repeater') {
           result = buildRepeaterWorkout({
             initialPrep: this.repeaterInitialPrep,
             work: this.repeaterWork,
@@ -105,6 +109,11 @@ document.addEventListener('alpine:init', () => {
             betweenRestPrep: this.repeaterBetweenRestPrep,
             sets: this.repeaterSets
           });
+        } else {
+          result = {
+            initialPrepSeconds: this.textInitialPrep,
+            group: parseWorkoutText(this.textWorkoutInput)
+          };
         }
       } catch (e) {
         return;
@@ -186,7 +195,7 @@ document.addEventListener('alpine:init', () => {
             restPrep: this.seriesRestPrep,
             rounds: this.seriesRounds
           });
-        } else {
+        } else if (this.workoutType === 'repeater') {
           result = buildRepeaterWorkout({
             initialPrep: this.repeaterInitialPrep,
             work: this.repeaterWork,
@@ -196,6 +205,11 @@ document.addEventListener('alpine:init', () => {
             betweenRestPrep: this.repeaterBetweenRestPrep,
             sets: this.repeaterSets
           });
+        } else {
+          result = {
+            initialPrepSeconds: this.textInitialPrep,
+            group: parseWorkoutText(this.textWorkoutInput)
+          };
         }
       } catch (e) {
         this.formError = e.message;
