@@ -252,7 +252,7 @@ section.screen-config {
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin-left: 32px;
+  margin-left: 16px;
 }
 
 .row {
@@ -289,7 +289,7 @@ section.screen-config {
 .group {
   position: relative;
   margin: 4px 0;
-  padding-left: 18px;
+  padding-left: 26px;
   border-left: 2px solid var(--guide-color, var(--text-faint));
 }
 
@@ -297,16 +297,16 @@ section.screen-config {
    horizontal — se lee igual que el resto, sin girar nada. */
 .group-badge {
   position: absolute;
-  left: -32px;
+  left: -1px;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   color: var(--guide-color, var(--text-faint));
   background: color-mix(in srgb, var(--guide-color, var(--text-faint)) 16%, transparent);
   border-radius: 5px;
-  padding: 2px 7px;
+  padding: 2px 5px;
   white-space: nowrap;
 }
 
