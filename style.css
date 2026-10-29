@@ -502,8 +502,25 @@ section.screen-running {
 
 .block-gap { width: 7px; flex: none; }
 
-.screen-running .pause-btn {
+.transport-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin: 20px auto 0;
+}
+
+.skip-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.6rem;
+  font-size: 1.2rem;
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
+.screen-running .pause-btn {
+  margin: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
