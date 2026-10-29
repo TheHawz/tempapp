@@ -303,8 +303,8 @@ section.screen-config {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 0.62rem;
-  color: var(--guide-color, var(--text-faint));
-  background: color-mix(in srgb, var(--guide-color, var(--text-faint)) 16%, transparent);
+  color: var(--bg);
+  background: var(--guide-color, var(--text-faint));
   border-radius: 5px;
   padding: 2px 5px;
   white-space: nowrap;
