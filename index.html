@@ -130,7 +130,11 @@
         <div class="segments" x-ref="segments"></div>
       </div>
 
-      <button type="button" class="pause-btn" @click="pause()">Pausar</button>
+      <div class="transport-row">
+        <button type="button" class="skip-btn" @click="skipPrevious()" aria-label="Fase anterior">⏮</button>
+        <button type="button" class="pause-btn" @click="pause()">Pausar</button>
+        <button type="button" class="skip-btn" @click="skipNext()" aria-label="Fase siguiente">⏭</button>
+      </div>
     </section>
 
     <section x-show="screen === 'paused'" x-transition>

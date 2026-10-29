@@ -228,6 +228,16 @@ document.addEventListener('alpine:init', () => {
       this.releaseWakeLock();
     },
 
+    skipNext() {
+      this.engine.skipNext();
+      this.update();
+    },
+
+    skipPrevious() {
+      this.engine.skipPrevious();
+      this.update();
+    },
+
     resumeTimer() {
       this.sound.unlock();
       cancelAnimationFrame(this.rafId);
