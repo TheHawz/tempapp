@@ -27,6 +27,7 @@
       <div class="type-selector">
         <button type="button" :class="workoutType === 'series' ? 'active' : ''" @click="workoutType = 'series'; renderConfigPreview()">Serie</button>
         <button type="button" :class="workoutType === 'repeater' ? 'active' : ''" @click="workoutType = 'repeater'; renderConfigPreview()">Repeater</button>
+        <button type="button" :class="workoutType === 'texto' ? 'active' : ''" @click="workoutType = 'texto'; renderConfigPreview()">Texto</button>
       </div>
 
       <div class="card" x-show="workoutType === 'series'">
@@ -86,6 +87,21 @@
             <span class="field-name">Sets</span>
             <input type="number" min="0" step="1" x-model.number="repeaterSets" @input="renderConfigPreview()">
           </label>
+        </div>
+      </div>
+
+      <div class="card" x-show="workoutType === 'texto'">
+        <div class="card-label">Campos &middot; Texto libre</div>
+        <div class="config-form">
+          <label>
+            <span class="field-name">Preparación inicial (s)</span>
+            <input type="number" min="0" step="1" x-model.number="textInitialPrep" @input="renderConfigPreview()">
+          </label>
+          <label>
+            <span class="field-name">Entreno</span>
+            <textarea rows="4" x-model="textWorkoutInput" @input="renderConfigPreview()"></textarea>
+          </label>
+          <p class="field-hint">Duraciones: <code>10''</code>/<code>10"</code> segundos, <code>1'</code> minutos. Par trabajo/descanso: <code>10''/20''</code>. Repetir: <code>x5</code> (solo afecta a lo inmediatamente anterior). Agrupar con paréntesis: <code>(10''/20''x5 /1')x3</code>.</p>
         </div>
       </div>
 
