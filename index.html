@@ -117,7 +117,7 @@
 
     <section x-show="screen === 'running'" x-transition class="screen-running">
       <div class="stage" :data-phase="phaseType">
-        <button type="button" class="sound-toggle-btn" @click="toggleSound()" x-text="soundOn ? '🔊' : '🔇'" aria-label="Silenciar sonido"></button>
+        <button type="button" class="sound-toggle-btn" @click="toggleSound()" x-text="soundOn ? '[•]' : '[ ]'" :aria-label="soundOn ? 'Silenciar sonido' : 'Activar sonido'"></button>
         <div class="eyebrow" x-text="phaseLabel"></div>
 
         <div class="ring-wrap">
@@ -147,9 +147,9 @@
       </div>
 
       <div class="transport-row">
-        <button type="button" class="skip-btn" @click="skipPrevious()" aria-label="Fase anterior">⏮</button>
-        <button type="button" class="pause-btn" @click="pause()">Pausar</button>
-        <button type="button" class="skip-btn" @click="skipNext()" aria-label="Fase siguiente">⏭</button>
+        <button type="button" class="skip-btn" @click="skipPrevious()" aria-label="Fase anterior">«</button>
+        <button type="button" class="pause-btn" @click="pause()"><span class="btn-dim">$</span> pausar</button>
+        <button type="button" class="skip-btn" @click="skipNext()" aria-label="Fase siguiente">»</button>
       </div>
     </section>
 
